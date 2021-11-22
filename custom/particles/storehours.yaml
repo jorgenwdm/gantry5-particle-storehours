@@ -1,0 +1,150 @@
+name: Store Hours
+description: Displays current store hours
+type: particle
+icon: fa-table
+
+form:
+  fields:
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globally enable this particle
+      default: true
+
+    tabs:
+      type: container.tabs
+      fields:
+        tab_settings:
+          label: Settings
+          fields:
+            after_text:
+              type: input.text
+              label: After Text
+              description: Enter text that appears after store hours
+            contact_text:
+              type: input.text
+              label: Contact button text
+              description: Enter contact button text
+              default: Contact us
+            contact_link:
+              type: input.text
+              label: Contact button link
+              description: Enter contact button link
+            class:
+              type: input.text
+              label: Particle class
+              description: Enter particle custom class
+
+
+        tab_regular:
+          label: Regular days
+          fields:
+
+              regular_items:
+                type: collection.list
+                array: true
+                label: Days of the week
+                description: Create each day of the week and set store hours
+                value: regular_name
+                ajax: true
+                fields:
+                  .regular_name:
+                    type: input.text
+                    label: Day of the week
+                    description: Specify the name of this day (eg. Monday)
+                    skip: true
+                  .regular_number:
+                    type: input.number
+                    label: Day number
+                    description: Specify the day number according to ISO-8601 (eg. Monday is 1)
+                  .regular_icon:
+                    type: input.icon
+                    label: Icon
+                  .regular_enabled:
+                    type: input.checkbox
+                    label: Operating
+                    default: true
+                  .regular_open:
+                     type: input.time
+                     label: Open Time
+                     description: Specify the time the store opens
+                  .regular_close:
+                     type: input.time
+                     label: Close Time
+                     description: Specify the time the store closes
+
+        tab_special:
+          label: Special days
+          fields:
+
+             special_items:
+                type: collection.list
+                array: true
+                label: Special days
+                description: Create special days where the store hours change
+                value: special_name
+                ajax: true
+                fields:
+                  .special_name:
+                    type: input.text
+                    label: Special day
+                    description: Specify the name of this special day (eg. Christmas)
+                    skip: true
+                  .special_date:
+                    type: input.date
+                    label: Date
+                    description: Specify the date that this special event will happen
+                  .special_icon:
+                    type: input.icon
+                    label: Icon
+                  .special_enabled:
+                    type: input.checkbox
+                    label: Operating
+                    default: true
+                  .special_open:
+                     type: input.time
+                     label: Open Time
+                  .special_close:
+                     type: input.time
+                     label: Close Time
+
+        tab_language:
+          label: Language
+          fields:
+            trans_hours:
+              type: input.text
+              label: Hours
+              default: Hours
+            trans_open:
+              type: input.text
+              label: Open
+              default: Open
+            trans_closed:
+              type: input.text
+              label: Closed
+              default: Closed
+            trans_closes_soon:
+              type: input.text
+              label: Closes soon
+              default: Closes soon
+            trans_remain_open_till:
+              type: input.text
+              label: Remain open till
+              default: We will remain open till
+            trans_opens:
+              type: input.text
+              label: Opens
+              default: Opens
+            trans_at:
+              type: input.text
+              label: at
+              default: at
+            trans_today:
+              type: input.text
+              label: today
+              default: today
+            trans_tomorrow:
+              type: input.text
+              label: tomorrow
+              default: tomorrow
+            

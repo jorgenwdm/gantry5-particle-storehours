@@ -1,0 +1,146 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{% set now_date = "now"|date("Y-m-d") %}
+{% set now_time = "now"|date("H:i") %}
+{% set now_index = "now"|date("N") - 1 %} {# day index eg. Monday is 0 #}
+
+{# We set the today recular day #}
+{% set today_is_special = false %}	
+{% set today_element = particle.regular_items[ now_index ] %}
+{% set today_date, today_open, today_close, today_enabled, today_title = null, null, null, null, null %}	
+
+{# We check if today is a special day #}
+{% for element in particle.special_items %}
+    {% if element.special_date == now_date %}
+        {% set today_is_special = true %}
+        {% set today_element = element %}        
+   {% endif %}
+{% endfor %}
+
+{# Now we will find the next OPERATING day #}
+{% set next_is_special = false %}
+{% set next_element = null %}
+{% set next_date, next_open, next_close, next_enabled, next_title = null, null, null, null, null %}	
+
+{% set found = false %}
+{% for dd in range(1, 60) if not found %}
+	{% set i_date = now_date|date_modify("+" ~ dd ~ " day")|date("Y-m-d") %} 	
+    {% set i_index = i_date|date('N') - 1 %}
+
+    {# we check if current date is operating and special #}    
+	{% for element in particle.special_items %}
+        {% if element.special_date == i_date and element.special_enabled == true %}
+            {% set next_is_special = true %}
+            {% set next_element = element %}
+            {% set found = true %}        
+        {% endif %}
+    {% endfor %}	
+
+    {# if current date is not an operating special date, we check if it is a regular operating day #}    
+    {% if found == false %}
+	    {% set i_element = particle.regular_items[i_index] %}
+	    {% if i_element.regular_enabled == true %}
+		    {% set found = true %}
+		    {% set next_date = i_date %}	
+            {% set next_is_special = false %}	
+		    {% set next_element = i_element %}		    
+        {% endif %}
+    {% endif %}
+    
+{% endfor %}
+
+{% if today_is_special %}
+	{% set today_date = now_date %}
+	{% set today_open = today_element.special_open %}
+	{% set today_close = today_element.special_close %}
+	{% set today_enabled = today_element.special_enabled %}
+	{% set today_title = today_element.special_name %}
+{% else %}
+	{% set today_date = now_date %}
+	{% set today_open = today_element.regular_open %}
+	{% set today_close = today_element.regular_close %}
+	{% set today_enabled = today_element.regular_enabled %}
+	{% set today_title = null %}
+{% endif %}
+
+{% if next_is_special %}
+	{% set next_date = next_element.special_date %}
+	{% set next_open = next_element.special_open %}
+	{% set next_close = next_element.special_close %}
+	{% set next_enabled = next_element.special_enabled %}
+	{% set next_title = next_element.special_name %}
+{% else %}	
+	{% set next_open = next_element.regular_open %}
+	{% set next_close = next_element.regular_close %}
+	{% set next_enabled = next_element.regular_enabled %}
+	{% set next_title = null %}    
+{% endif %}
+
+{% macro status(txt) %}
+    <span class="status">{{ txt }}</span>
+{% endmacro %}
+
+{% block particle %}
+    {% set frommin = now_time|date("H")*60 + now_time|date("i") %}
+    {% set tomin =  today_close|date('H')*60 + today_close|date('i') %}
+    {% set time_diff = tomin - frommin %} {# how many minutes are between now and today closing time #}
+
+<div class="moduletable storehours {{ particle.class|trim|e }}">
+<p>
+
+{# If today we are closed #}
+{% if today_enabled == false %}
+    {{ particle.trans_hours|e }}: {{ _self.status(particle.trans_closed|e) }}<br/>
+    {{ particle.trans_opens }}
+
+    {% if next_date == today_date|date_modify("+1 day")|date("Y-m-d") %}
+        {{ particle.trans_tomorrow }} {{ particle.trans_at }} {{ next_open|e }}<br/>
+    {% else %}  
+        {{ particle.trans_at }} {{ next_date|date('d/m')|e }}, {{ next_open|e }}<br/>        
+    {% endif %}    
+
+{# If today we are not yet open #}
+{% elseif now_date==today_date and now_time < today_open %}
+    {{ particle.trans_hours|e }}: {{ _self.status(particle.trans_closed|e) }}<br/>
+    {{ particle.trans_opens }} {{ particle.trans_today }} {{ particle.trans_at }}
+    {{ today_open }}<br/>
+
+{# If today we are open #}
+{% elseif now_date==today_date and now_time >= today_open and now_time <= today_close %}
+    {{ particle.trans_hours|e }}:
+    {% if time_diff > 60 %}    
+        {{ _self.status(particle.trans_open|e) }}<br/>
+    {% else %}
+        {{ _self.status(particle.trans_closes_soon|e) }}<br/>
+    {% endif %}    
+
+    {{ particle.trans_remain_open_till }} {{ today_close }}<br/>    
+
+{# If we have already closed #}
+{% else %}
+    {{ particle.trans_hours|e }}: {{ _self.status(particle.trans_closed|e) }}<br/>
+    
+    {{ particle.trans_opens }}
+    
+    {% if next_date == today_date|date_modify("+1 day")|date("Y-m-d") %}
+        {{ particle.trans_tomorrow }} {{ particle.trans_at }} {{ next_open|e }}<br/>
+    {% else %}
+        {{ particle.trans_at }} {{ next_date|date('d/m')|e }}, {{ next_open|e }}<br/>
+    {% endif %}
+
+{% endif %}
+
+<br/>
+{{ particle.after_text|raw }} {# text after store hours #}
+
+</p>
+
+{% if particle.contact_link %}
+    <p class="center">
+    <a class="button button-bevel button-small" href="{{ particle.contact_link|raw }}">{{ particle.contact_text|e }}</a>
+    </p>
+{% endif %}
+
+</div>
+
+{% endblock %}
