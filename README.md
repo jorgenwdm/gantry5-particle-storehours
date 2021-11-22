@@ -19,6 +19,16 @@ Installation is pretty easy.
 2. You go to your default theme and add this custom particle. 
 Remember to clear cache from your theme and from your main CMS system eg. Joomla before trying to add this custom particle.
 
+## Features
+
+**Regular Days** : Store hours from Monday till Sunday
+
+**Special Days** : Store hours on special dates that the user can set
+
+**Settings** : Front end captions
+
+**Language** : Several language settings of the particle
+
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
